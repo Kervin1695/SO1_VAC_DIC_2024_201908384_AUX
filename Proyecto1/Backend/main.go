@@ -130,7 +130,6 @@ func postScheduledData() {
 
 func main() {
 
-	fmt.Println("Starting server... - Clase 5 - Sistemas Operativos 1")
 	router := mux.NewRouter().StrictSlash(true)
 	//Endpoints
 	router.HandleFunc("/", Index).Methods("GET")

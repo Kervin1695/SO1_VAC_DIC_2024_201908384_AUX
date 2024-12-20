@@ -1,0 +1,49 @@
+#Instalación de git
+
+sudo apt update
+sudo apt install make
+sudo apt install gcc
+sudo apt install git
+
+#Clonar el repositorio
+git clone https://github.com/Kervin1695/SO1_VAC_DIC_2024_201908384_AUX.git
+
+#Moverian a la carpeta donde está su docker-compose
+cd SO1_VAC_DIC_2024_201908384_AUX/Proyecto1
+
+#Instalación de docker
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+
+
+
+#Agregar los módulos de kernel
+# cd a la ubicación
+
+cd CPU
+make all
+sudo insmod cpu_201908384.ko
+
+cd ..
+cd RAM
+make all
+sudo insmod RAM_201908384.ko
+
+
+#ejecutar
+sudo docker build -t mainApp .
+
+docker run -d -p 5200:5200 --name monitoringAPI mainApp
