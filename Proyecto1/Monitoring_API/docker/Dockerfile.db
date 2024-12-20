@@ -1,0 +1,5 @@
+# Base image
+FROM mysql:latest
+
+# Copy initialization script
+COPY ./migrations/init.sql /docker-entrypoint-initdb.d/

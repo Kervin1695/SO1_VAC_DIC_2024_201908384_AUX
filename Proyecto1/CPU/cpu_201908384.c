@@ -13,6 +13,8 @@
 #include <linux/sched.h>
 #include <linux/proc_fs.h>
 #include <asm/uaccess.h>
+#include <linux/slab.h>
+
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Module to get RAM information");
@@ -59,6 +61,42 @@ static int calculate_CPU_Percentage_Use(void){
     return percentage;
 }
 
+char* get_machine_id(void) {
+    struct file *file;
+    char *machine_id;
+    loff_t pos = 0;
+    ssize_t bytes_read;
+
+    // Reservar memoria para machine_id
+    machine_id = kmalloc(37, GFP_KERNEL);
+    if (!machine_id) {
+        printk(KERN_ERR "Error allocating memory for machine ID\n");
+        return NULL;
+    }
+
+    // Abrir el archivo de forma segura
+    file = filp_open("/etc/machine-id", O_RDONLY, 0);
+    if (IS_ERR(file)) {
+        printk(KERN_ERR "Error opening /etc/machine-id\n");
+        kfree(machine_id);
+        return NULL;
+    }
+
+    // Leer el contenido del archivo
+    bytes_read = kernel_read(file, machine_id, 36, &pos);
+    if (bytes_read < 0) {
+        printk(KERN_ERR "Error reading /etc/machine-id\n");
+        filp_close(file, NULL);
+        kfree(machine_id);
+        return NULL;
+    }
+
+    machine_id[36] = '\0'; // Asegurar que la cadena esté terminada en nulo
+
+    filp_close(file, NULL);
+    return machine_id;
+}
+
 static int create_File_CPU_Info(struct seq_file * archivo, void *v) {
     int percentage = calculate_CPU_Percentage_Use();
     
@@ -67,6 +105,7 @@ static int create_File_CPU_Info(struct seq_file * archivo, void *v) {
         return 0;
     } else {
         seq_printf(archivo, "{\n");
+        seq_printf(archivo, "\"maquina_id\": \"%s\",\n", get_machine_id());
         seq_printf(archivo, "\"percentage_used\": %d,\n", percentage);
         seq_printf(archivo, "\"tasks\": [\n");
         

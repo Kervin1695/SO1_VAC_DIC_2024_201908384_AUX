@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="API para monitorear el estado de los servicios de la empresa.">
+    <title>Monitoring API</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Monitoreo de CPU</h1>
+    </header>
+
+    <main>
+        <section id="cpu-info">
+            <h2>Uso de CPU</h2>
+            <div id="cpu-usage">
+                <p>Cargando...</p>
+            </div>
+        </section>
+
+        <section id="cpu-history">
+            <h2>Historial de Uso de CPU</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID de Máquina</th>
+                        <th>Uso en %</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody id="cpu-history-list">
+                    <!-- Los datos de las máquinas se agregarán aquí -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Monitoreo de Recursos</p>
+    </footer>
+
+    <script src="./scripts.js"></script>
+</body>
+</html>

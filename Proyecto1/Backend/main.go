@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os/exec"
@@ -66,7 +68,7 @@ func postScheduledData() {
 				fmt.Println(err)
 			}
 			//Mandar el post
-			//url := "http://localhost:8080/cpu"
+			var myurl = "http://localhost:8080/cpu"
 			//Manda cpu_info que es un json
 			p_cpu, err := cpu.Percent(time.Second, false)
 			if err != nil {
@@ -76,18 +78,18 @@ func postScheduledData() {
 			jsonValue, _ := json.Marshal(cpu_info)
 			fmt.Println(string(jsonValue))
 			//Mandar el json a la url
-			//response, err := http.Post(url, "application/json", bytes.NewBuffer(jsonValue))
-			//if err != nil {
-			//	fmt.Println(err)
-			//} else {
-			//	defer response.Body.Close()
-			//	responseBody, err := ioutil.ReadAll(response.Body)
-			//	if err != nil {
-			//		fmt.Println(err)
-			//	} else {
-			//		fmt.Println("\x1b[32m", string(responseBody), "\x1b[0m")
-			//	}
-			//}
+			response, err := http.Post(myurl, "application/json", bytes.NewBuffer(jsonValue))
+			if err != nil {
+				fmt.Println(err)
+			} else {
+				defer response.Body.Close()
+				responseBody, err := ioutil.ReadAll(response.Body)
+				if err != nil {
+					fmt.Println(err)
+				} else {
+					fmt.Println("\x1b[32m", string(responseBody), "\x1b[0m")
+				}
+			}
 			fmt.Println(" ")
 			fmt.Println("======= DATOS MODULO RAM =======")
 			fmt.Println(" ")

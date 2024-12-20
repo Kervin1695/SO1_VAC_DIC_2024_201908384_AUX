@@ -15,6 +15,42 @@ MODULE_VERSION("1.0");
 
 /*JSON con la informacion de la memoria RAM*/
 
+char* get_machine_id(void) {
+    struct file *file;
+    char *machine_id;
+    loff_t pos = 0;
+    ssize_t bytes_read;
+
+    // Reservar memoria para machine_id
+    machine_id = kmalloc(37, GFP_KERNEL);
+    if (!machine_id) {
+        printk(KERN_ERR "Error allocating memory for machine ID\n");
+        return NULL;
+    }
+
+    // Abrir el archivo de forma segura
+    file = filp_open("/etc/machine-id", O_RDONLY, 0);
+    if (IS_ERR(file)) {
+        printk(KERN_ERR "Error opening /etc/machine-id\n");
+        kfree(machine_id);
+        return NULL;
+    }
+
+    // Leer el contenido del archivo
+    bytes_read = kernel_read(file, machine_id, 36, &pos);
+    if (bytes_read < 0) {
+        printk(KERN_ERR "Error reading /etc/machine-id\n");
+        filp_close(file, NULL);
+        kfree(machine_id);
+        return NULL;
+    }
+
+    machine_id[36] = '\0'; // Asegurar que la cadena esté terminada en nulo
+
+    filp_close(file, NULL);
+    return machine_id;
+}
+
 static int create_File_RAM_Info(struct seq_file * archivo, void *v) {
     // struct sysinfo mySysInfo;
     // si_meminfo(&mySysInfo);
@@ -42,6 +78,7 @@ static int create_File_RAM_Info(struct seq_file * archivo, void *v) {
     percentage_used = (used_ram * 100) / total_ram;
     // Calculamos la cantidad de memoria usada y el porcentaje de memoria usada
     seq_printf(archivo, "{\n");
+    seq_printf(archivo, "\"maquina_id\": \"%s\",\n", get_machine_id());
     seq_printf(archivo, "\"total_ram\": %ld,\n", total_ram);
     seq_printf(archivo, "\"free_ram\": %ld,\n", free_ram);
     seq_printf(archivo, "\"used_ram\": %ld,\n", used_ram);
